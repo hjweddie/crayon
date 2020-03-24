@@ -20,9 +20,9 @@ def mail(to):
         msg.attach(html)
 
     msg['Subject'] = "Believe us：Better Future in Google Play"
-    msg['From'] = 'yujingqiong@youmi.net'
-    msg['To'] = '596635884@qq.com'
-    # msg['To'] = to
+    msg['From'] = 'yujingqiong@mihui.com'
+    # msg['To'] = '596635884@qq.com'
+    msg['To'] = to
 
     s = smtplib.SMTP('smtp.mailgun.org', 587)
     # s.set_debuglevel(1)
@@ -42,6 +42,6 @@ if '__main__' == __name__:
             try:
                 mail(row[0])
                 print(row[0])
-                time.sleep(10)
+                time.sleep(20)
             except:
                 print(traceback.format_exc())

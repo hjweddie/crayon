@@ -24,7 +24,7 @@ if '__main__' == __name__:
         for row in rows:
             total_count = total_count + 1
             try:
-                dst_cursor.execute('insert into apps (app_name, developer_name, mail, gp_link) values ("%s", "%s", "%s", "%s")' % (row[0], row[1], row[2], row[3]))
+                dst_cursor.execute('insert into apps (app_name, developer_name, mail, gp_link, created_at) values ("%s", "%s", "%s", "%s", datetime())' % (row[0], row[1], row[2], row[3]))
                 dst_db.commit()
                 new_count = new_count + 1
                 print("app_name: " + row[0])

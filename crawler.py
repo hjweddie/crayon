@@ -3,19 +3,15 @@
 #
 # @author hjweddie@163.com
 
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
 import sys
 import time
-import smtplib
+import json
+import redis
 import sqlite3
 import traceback
-# import gevent.monkey
-
-# gevent.monkey.patch_all()
 
 BASE_URL = "https://play.google.com"
 
@@ -24,14 +20,16 @@ class GooglePlayCrawler(object):
     def __init__(self, gl=''):
         self.gl = gl
         db_name = "apps.db"
-        if len(gl) > 0:
-            db_name = "%s.db" % gl
+        # if len(gl) > 0:
+        # db_name = "%s.db" % gl
 
         # self.sql = sqlite3.connect('apps.db')
         self.sql = sqlite3.connect(db_name)
+        self.redis = redis.Redis(host='localhost', port=6379)
 
     def close(self):
         self.sql.close()
+        self.redis.close()
 
     def get_driver(self):
         # 初始化chrome driver
@@ -46,23 +44,6 @@ class GooglePlayCrawler(object):
         # chrome_options.add_argument('--proxy-server=socks5://hk.vpn.umlife.net:18500')
 
         return webdriver.Chrome(chrome_options=chrome_options)
-
-    def mail(self, to):
-        msg = MIMEMultipart("alternative")
-        with open("template.html") as fd:
-            html = MIMEText(fd.read(), 'html')
-            msg.attach(html)
-
-        msg['Subject'] = "Believe us：Better Future in Google Play"
-        msg['From'] = 'yujingqiong@youmi.net'
-        msg['To'] = '596635884@qq.com'
-        # msg['To'] = to
-
-        s = smtplib.SMTP('smtp.mailgun.org', 587)
-        # s.set_debuglevel(1)
-        s.login('postmaster@notify.umlife.com', '7131f971298eef95d785d2156343c183')
-        s.send_message(msg)
-        s.quit()
 
     def get(self, url, scroll=True):
         try:
@@ -155,10 +136,7 @@ class GooglePlayCrawler(object):
                 "mail": mail,
             }
 
-            cursor = self.sql.cursor()
-            query = 'insert into apps (app_name, developer_name, mail, gp_link) values ("%s", "%s", "%s", "%s")' % (app["app_name"], app["developer_name"], app["mail"], app["gp_link"])
-            cursor.execute(query)
-            self.sql.commit()
+            self.redis.lpush("crayon", json.dumps(app))
 
         except:
             print(traceback.format_exc())
@@ -185,8 +163,6 @@ class GooglePlayCrawler(object):
                     self.get_app_info(app_div)
                 except:
                     print(traceback.format_exc())
-
-                 #self.mail(mail)
 
         print("type count: ", type_count)
         print("app count: ", self.app_count)
