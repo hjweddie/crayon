@@ -46,6 +46,8 @@ class GooglePlayCrawler(object):
         return webdriver.Chrome(chrome_options=chrome_options)
 
     def get(self, url, scroll=True):
+        content = ""
+
         try:
             driver = self.get_driver()
 
@@ -74,6 +76,7 @@ class GooglePlayCrawler(object):
             print(traceback.format_exc())
 
         driver.close()
+
         return content
 
     def get_more_links(self):
@@ -108,6 +111,8 @@ class GooglePlayCrawler(object):
 
             self.app_count = self.app_count + 1
             content = self.get(target, scroll=False)
+            if len(content) < 1:
+                return app        
 
             soup = BeautifulSoup(content, "html.parser")
             # 先找到开发者信息的span, 然后再找邮箱地址
@@ -155,6 +160,8 @@ class GooglePlayCrawler(object):
             print("type target: ", target)
 
             content = self.get(target)
+            if len(content) < 1:
+                continue
             soup = BeautifulSoup(content, "html.parser")
             app_divs = soup.select("body > div > div > c-wiz > div > c-wiz > div > c-wiz > c-wiz > c-wiz > div > div > div > c-wiz > div")
 
