@@ -1,0 +1,8 @@
+mail = {
+    "subject": "",
+    "from": "",
+    "address": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+}

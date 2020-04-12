@@ -12,6 +12,8 @@ import smtplib
 import sqlite3
 import traceback
 
+import config
+
 
 def mail(to):
     msg = MIMEMultipart("alternative")
@@ -19,14 +21,13 @@ def mail(to):
         html = MIMEText(fd.read(), 'html')
         msg.attach(html)
 
-    msg['Subject'] = "Believe us：Better Future in Google Play"
-    msg['From'] = 'yujingqiong@mihui.com'
-    # msg['To'] = '596635884@qq.com'
+    msg['Subject'] = config.mail["subject"]
+    msg['From'] = config.mail["from"]
     msg['To'] = to
 
-    s = smtplib.SMTP('smtp.mailgun.org', 587)
+    s = smtplib.SMTP(config.mail["address"], config.mail["port"])
     # s.set_debuglevel(1)
-    s.login('postmaster@notify.umlife.com', '7131f971298eef95d785d2156343c183')
+    s.login(config.mail["user"], config.mail["password"])
     s.send_message(msg)
     s.quit()
 
